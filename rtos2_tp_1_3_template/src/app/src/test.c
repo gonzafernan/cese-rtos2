@@ -49,11 +49,6 @@
 
 /********************** macros and definitions *******************************/
 
-//#define TEST_RUN_(fnc_name)\
-//  TH_LOG("------------------------------");\
-//  TH_LOG(# fnc_name);\
-//  test_case_run_((fnc_name));
-
 /********************** internal data declaration ****************************/
 
 typedef struct

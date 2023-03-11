@@ -43,7 +43,7 @@
 #include <stdbool.h>
 #include <string.h>
 
-#include "stm32f4xx_hal.h"
+//#include "stm32f4xx_hal.h"
 #include "euart.h"
 #include "eboard.h"
 
@@ -57,20 +57,28 @@
 
 typedef struct
 {
-  GPIO_TypeDef *GPIOx;
-  uint16_t GPIO_Pin;
+//  GPIO_TypeDef *GPIOx;
+//  uint16_t GPIO_Pin;
+  void* hgpio;
   bool input;
-} gpio_descriptor_t_;
+} eboard_gpio_descriptor_t_;
 
 /********************** internal functions declaration ***********************/
 
 /********************** internal data definition *****************************/
 
-static gpio_descriptor_t_ gpios_[EBOARD_GPIO__CNT] = {
-  {GPIOx: GPIOB, GPIO_Pin: GPIO_PIN_14, input: false}, // LED3
-  {GPIOx: GPIOB, GPIO_Pin: GPIO_PIN_0, input: false}, // LED1
-  {GPIOx: GPIOB, GPIO_Pin: GPIO_PIN_7, input: false}, // LED2
-  {GPIOx: GPIOC, GPIO_Pin: GPIO_PIN_13, input: true}, // USER BTN
+//static gpio_descriptor_t_ gpios_[EBOARD_GPIO__CNT] = {
+//  {GPIOx: GPIOB, GPIO_Pin: GPIO_PIN_14, input: false}, // LED3
+//  {GPIOx: GPIOB, GPIO_Pin: GPIO_PIN_0, input: false}, // LED1
+//  {GPIOx: GPIOB, GPIO_Pin: GPIO_PIN_7, input: false}, // LED2
+//  {GPIOx: GPIOC, GPIO_Pin: GPIO_PIN_13, input: true}, // USER BTN
+//};
+
+static eboard_gpio_descriptor_t_ gpios_[EBOARD_GPIO__CNT] = {
+  {hgpio: NULL, input: false}, // LED3
+  {hgpio: NULL, input: false}, // LED1
+  {hgpio: NULL, input: false}, // LED2
+  {hgpio: NULL, input: true}, // USER BTN
 };
 
 static uint8_t tx_buffer_[RB_TX_BUFFER_SIZE_];
@@ -88,20 +96,35 @@ char* const elog_msg = elog_user_buffer_;
 
 /********************** external functions definition ************************/
 
-__weak uint32_t eboard_osal_port_get_time(void)
-{
-  return (uint32_t)0;
-}
+//__weak uint32_t eboard_osal_port_get_time(void)
+//{
+//  return (uint32_t)0;
+//}
 
-__weak void eboard_osal_port_delay(uint32_t time_ms)
-{
-  return;
-}
+//__weak void eboard_osal_port_delay(uint32_t time_ms)
+//{
+//  return;
+//}
 
-void eboard_init(UART_HandleTypeDef* phuart)
+void eboard_uart_init(void* phuart)
 {
   euart_init(pheuart_, phuart, tx_buffer_, RB_TX_BUFFER_SIZE_, rx_buffer_, RB_RX_BUFFER_SIZE_);
 }
+
+void eboard_gpio_init(eboard_gpio_idx_t idx, void* hgpio)
+{
+	gpios_[idx].hgpio = hgpio;
+}
+
+//__weak void eboard_hal_port_gpio_write(void* handle, bool value)
+//{
+//  return;
+//}
+
+//__weak bool eboard_hal_port_gpio_read(void* handle)
+//{
+//  return false;
+//}
 
 void eboard_gpio_write(eboard_gpio_idx_t idx, bool value)
 {
@@ -110,12 +133,14 @@ void eboard_gpio_write(eboard_gpio_idx_t idx, bool value)
     return;
   }
 
-  gpio_descriptor_t_* hgpio = gpios_ + idx;
+  eboard_gpio_descriptor_t_* hgpio = gpios_ + idx;
   if(hgpio->input)
   {
     return;
   }
-  HAL_GPIO_WritePin(hgpio->GPIOx, hgpio->GPIO_Pin, value ? GPIO_PIN_SET : GPIO_PIN_RESET);
+
+  eboard_hal_port_gpio_write(hgpio, value);
+//  HAL_GPIO_WritePin(hgpio->GPIOx, hgpio->GPIO_Pin, value ? GPIO_PIN_SET : GPIO_PIN_RESET);
 }
 
 bool eboard_gpio_read(eboard_gpio_idx_t idx)
@@ -125,9 +150,10 @@ bool eboard_gpio_read(eboard_gpio_idx_t idx)
     return false;
   }
 
-  gpio_descriptor_t_* hgpio = gpios_ + idx;
-  GPIO_PinState state = HAL_GPIO_ReadPin(hgpio->GPIOx, hgpio->GPIO_Pin);
-  return (GPIO_PIN_SET == state);
+  eboard_gpio_descriptor_t_* hgpio = gpios_ + idx;
+  return eboard_hal_port_gpio_read(hgpio);
+//  GPIO_PinState state = HAL_GPIO_ReadPin(hgpio->GPIOx, hgpio->GPIO_Pin);
+//  return (GPIO_PIN_SET == state);
 }
 
 void eboard_led_red(bool value)
@@ -208,7 +234,22 @@ void eboard_log(const char* str)
 }
 
 // port uart
+void eboard_hal_port_uart_error(void* huart)
+{
+  // TODO: ¿?
+}
 
+void eboard_hal_port_uart_rx_irq(void* huart, uint16_t size)
+{
+  euart_rx_irq(pheuart_, huart, size);
+}
+
+void eboard_hal_port_uart_tx_irq(void* huart)
+{
+  euart_tx_irq(pheuart_, (void*)huart);
+}
+
+#if 0 // depreacted
 void euart_hal_receive(void* phardware_handle, uint8_t* pbuffer, size_t size)
 {
   HAL_UARTEx_ReceiveToIdle_IT((UART_HandleTypeDef*)phardware_handle, pbuffer, size);
@@ -233,4 +274,5 @@ void HAL_UART_TxCpltCallback(UART_HandleTypeDef* huart)
 {
   euart_tx_irq(pheuart_, (void*)huart);
 }
+#endif
 /********************** end of file ******************************************/

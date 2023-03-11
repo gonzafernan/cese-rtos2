@@ -82,7 +82,9 @@ uint32_t eboard_osal_port_get_time(void);
 
 void eboard_osal_port_delay(uint32_t time_ms);
 
-void eboard_init(UART_HandleTypeDef* phuart);
+void eboard_uart_init(void* phuart);
+
+void eboard_gpio_init(eboard_gpio_idx_t idx, void* hgpio);
 
 void eboard_gpio_write(eboard_gpio_idx_t idx, bool value);
 
@@ -113,6 +115,16 @@ size_t eboard_uart_read(uint8_t *buffer, size_t size);
 size_t eboard_uart_read_byte(uint8_t* pbyte);
 
 size_t eboard_uart_sread(char *str, size_t max_size);
+
+void eboard_hal_port_uart_error(void* huart);
+
+void eboard_hal_port_uart_rx_irq(void* huart, uint16_t size);
+
+void eboard_hal_port_uart_tx_irq(void* huart);
+
+void eboard_hal_port_gpio_write(void* handle, bool value);
+
+bool eboard_hal_port_gpio_read(void* handle);
 
 void eboard_log(const char* str);
 

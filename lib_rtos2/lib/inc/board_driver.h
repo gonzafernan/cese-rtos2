@@ -39,9 +39,6 @@
 /********************** inclusions *******************************************/
 
 #include "driver.h"
-#include "board_driver.h"
-
-#if 0
 
 /********************** macros and definitions *******************************/
 
@@ -133,7 +130,5 @@ void driver_init(void)
 	  eboard_gpio_init(idx, (void*)(gpios_ + idx));
   }
 }
-
-#endif
 
 /********************** end of file ******************************************/

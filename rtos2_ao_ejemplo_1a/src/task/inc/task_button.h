@@ -53,7 +53,7 @@ extern "C" {
 
 /********************** external functions declaration ***********************/
 
-void task_button(void const * argument);
+void task_button(void* argument);
 
 /********************** End of CPP guard *************************************/
 #ifdef __cplusplus

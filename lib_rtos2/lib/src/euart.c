@@ -7,7 +7,7 @@
 
 #include <string.h>
 #include "euart.h"
-#include "stm32f4xx_hal.h"
+//#include "stm32f4xx_hal.h"
 
 #define pTX_RB          (&(phandle->tx.rb))
 #define pTX_BUFFER      (phandle->tx.pbuffer)
@@ -26,15 +26,15 @@ void hal_send_(euart_t *phandle)
   phandle->tx_free = false;
 }
 
-__weak void euart_hal_receive(void* phardware_handle, uint8_t* pbuffer, size_t size)
-{
-  return;
-}
+//__weak void euart_hal_receive(void* phardware_handle, uint8_t* pbuffer, size_t size)
+//{
+//  return;
+//}
 
-__weak void euart_hal_send(void* phardware_handle, uint8_t* pbuffer, size_t size)
-{
-  return;
-}
+//__weak void euart_hal_send(void* phardware_handle, uint8_t* pbuffer, size_t size)
+//{
+//  return;
+//}
 
 void euart_init(euart_t *phandle, void* phardware_handle, uint8_t* ptx_buffer, size_t tx_buffer_size, uint8_t* prx_buffer, size_t rx_buffer_size)
 {
