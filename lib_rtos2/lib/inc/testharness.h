@@ -157,7 +157,7 @@ static void testharness_init_(void)
   tled_off_();
 
   BaseType_t status;
-  status = xTaskCreate(task_, "task_test", 128, NULL, TASK_PRIORITY, NULL);
+  status = xTaskCreate(task_, "task_test", 256, NULL, TASK_PRIORITY, NULL);
   while (pdPASS != status)
   {
     // error

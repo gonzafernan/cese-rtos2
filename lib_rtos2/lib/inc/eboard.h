@@ -48,14 +48,19 @@ extern "C" {
 #include <stdio.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include <string.h>
 
 /********************** macros ***********************************************/
+
+#define ELOG_MAXLEN             (64)
 
 #ifdef EBOARD_CONFIG_VERBOSE
 #define ELOG(...)\
     taskENTER_CRITICAL();\
-    sprintf(elog_msg, __VA_ARGS__);\
-    eboard_log(elog_msg);\
+    {\
+      elog_msg_len = snprintf(elog_msg, (ELOG_MAXLEN - 1), __VA_ARGS__);\
+      eboard_log(elog_msg);\
+    }\
     taskEXIT_CRITICAL()
 #else
 #define ELOG(...)
@@ -75,6 +80,7 @@ typedef enum
 /********************** external data declaration ****************************/
 
 extern char* const elog_msg;
+extern int elog_msg_len;
 
 /********************** external functions declaration ***********************/
 

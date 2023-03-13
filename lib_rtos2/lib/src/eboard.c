@@ -89,8 +89,9 @@ static euart_t* const pheuart_ = &heuart_;
 /********************** external data definition *****************************/
 
 static char elog_buffer_[32];
-static char elog_user_buffer_[64];
+static char elog_user_buffer_[ELOG_MAXLEN];
 char* const elog_msg = elog_user_buffer_;
+int elog_msg_len;
 
 /********************** internal functions definition ************************/
 
@@ -139,7 +140,7 @@ void eboard_gpio_write(eboard_gpio_idx_t idx, bool value)
     return;
   }
 
-  eboard_hal_port_gpio_write(hgpio, value);
+  eboard_hal_port_gpio_write((void*)hgpio->hgpio, value);
 //  HAL_GPIO_WritePin(hgpio->GPIOx, hgpio->GPIO_Pin, value ? GPIO_PIN_SET : GPIO_PIN_RESET);
 }
 
@@ -151,7 +152,7 @@ bool eboard_gpio_read(eboard_gpio_idx_t idx)
   }
 
   eboard_gpio_descriptor_t_* hgpio = gpios_ + idx;
-  return eboard_hal_port_gpio_read(hgpio);
+  return eboard_hal_port_gpio_read((void*)hgpio->hgpio);
 //  GPIO_PinState state = HAL_GPIO_ReadPin(hgpio->GPIOx, hgpio->GPIO_Pin);
 //  return (GPIO_PIN_SET == state);
 }
@@ -220,7 +221,7 @@ size_t eboard_uart_read_byte(uint8_t* pbyte)
 
 size_t eboard_uart_sread(char *str, size_t max_size)
 {
-  size_t ret = eboard_uart_read((uint8_t*)str, max_size);
+  size_t ret = eboard_uart_read((uint8_t*)str, max_size - 1);
   str[ret] = '\0';
   return ret;
 }
@@ -229,8 +230,8 @@ void eboard_log(const char* str)
 {
   sprintf(elog_buffer_, "[%lu] ", eboard_osal_port_get_time());\
   eboard_uart_swrite(elog_buffer_);
-  eboard_uart_swrite_line(str);
-//    sprintf(elog_msg, __VA_ARGS__);
+  eboard_uart_swrite(str);
+  eboard_uart_swrite_line((elog_msg_len < (ELOG_MAXLEN - 1)) ? "" : " ...");
 }
 
 // port uart

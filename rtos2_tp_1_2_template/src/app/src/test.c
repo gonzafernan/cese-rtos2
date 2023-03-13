@@ -84,7 +84,7 @@ static void assert_access_close_times_(int access, int times)
 {
   if(times != access_close_cnt_[access])
   {
-    TLOG("Error, access %d close %d times != %d times", access, times, access_open_cnt_[access]);
+    TLOG("Error, access %d close %d times != %d times", access, times, access_close_cnt_[access]);
     test_fail_();
   }
 }
@@ -162,8 +162,17 @@ void test_init(void)
 
 bool car_sensor_read(access_t access)
 {
-  bool state = car_sensor_[access];
-  car_sensor_[access] = false;
+//  bool state = car_sensor_[access];
+//  car_sensor_[access] = false;
+
+  bool state;
+  taskENTER_CRITICAL();
+  {
+    state = car_sensor_[access];
+    car_sensor_[access] = false;
+  }
+  taskEXIT_CRITICAL();
+
   if(state)
   {
     TLOG("Access %d read: %d", access, state);

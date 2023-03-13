@@ -38,6 +38,7 @@
 
 /********************** inclusions *******************************************/
 
+#include "hal.h"
 #include "driver.h"
 
 /********************** macros and definitions *******************************/
@@ -55,7 +56,7 @@ typedef struct
 
 /********************** internal data definition *****************************/
 
-static driver_gpio_descriptor_t_ gpios_[] = {
+static driver_gpio_descriptor_t_ driver_gpios_[] = {
   {idx: EBOARD_GPIO_LEDR, GPIOx: GPIOB, GPIO_Pin: GPIO_PIN_14}, // LED3
   {idx: EBOARD_GPIO_LEDG, GPIOx: GPIOB, GPIO_Pin: GPIO_PIN_0}, // LED1
   {idx: EBOARD_GPIO_LEDB, GPIOx: GPIOB, GPIO_Pin: GPIO_PIN_7}, // LED2
@@ -127,7 +128,7 @@ void driver_init(void)
 
   for(eboard_gpio_idx_t idx = 0; idx < EBOARD_GPIO__CNT; ++idx)
   {
-	  eboard_gpio_init(idx, (void*)(gpios_ + idx));
+	  eboard_gpio_init(idx, (void*)(driver_gpios_ + idx));
   }
 }
 
