@@ -139,7 +139,7 @@ void eboard_gpio_write(eboard_gpio_idx_t idx, bool value)
     return;
   }
 
-  eboard_hal_port_gpio_write(hgpio, value);
+  eboard_hal_port_gpio_write((void*)hgpio->hgpio, value);
 //  HAL_GPIO_WritePin(hgpio->GPIOx, hgpio->GPIO_Pin, value ? GPIO_PIN_SET : GPIO_PIN_RESET);
 }
 
@@ -151,7 +151,7 @@ bool eboard_gpio_read(eboard_gpio_idx_t idx)
   }
 
   eboard_gpio_descriptor_t_* hgpio = gpios_ + idx;
-  return eboard_hal_port_gpio_read(hgpio);
+  return eboard_hal_port_gpio_read((void*)hgpio->hgpio);
 //  GPIO_PinState state = HAL_GPIO_ReadPin(hgpio->GPIOx, hgpio->GPIO_Pin);
 //  return (GPIO_PIN_SET == state);
 }
