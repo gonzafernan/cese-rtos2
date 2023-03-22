@@ -36,19 +36,9 @@ size_t euart_write_buffer_len(euart_t *phandle);
 
 size_t euart_write(euart_t *phandle, const uint8_t *buffer, size_t size);
 
-//size_t euart_write_byte(euart_t *phandle, uint8_t byte);
-
-//size_t euart_swrite(euart_t *phandle, const char *str);
-
-//size_t euart_swrite_line(euart_t *phandle, const char *str);
-
 size_t euart_read_buffer_len(euart_t *phandle);
 
 size_t euart_read(euart_t *phandle, uint8_t *buffer, size_t size);
-
-//size_t euart_read_byte(euart_t *phandle, uint8_t* byte);
-
-//size_t euart_sread(euart_t *phandle, char *str, size_t max_size);
 
 void euart_rx_irq(euart_t *phandle, void *phardware_handle, size_t size);
 

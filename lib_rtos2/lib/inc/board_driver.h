@@ -47,7 +47,7 @@
 
 typedef struct
 {
-	eboard_gpio_idx_t idx;
+  eboard_gpio_idx_t idx;
   GPIO_TypeDef *GPIOx;
   uint16_t GPIO_Pin;
 } driver_gpio_descriptor_t_;
@@ -56,12 +56,11 @@ typedef struct
 
 /********************** internal data definition *****************************/
 
-static driver_gpio_descriptor_t_ driver_gpios_[] = {
-  {idx: EBOARD_GPIO_LEDR, GPIOx: GPIOB, GPIO_Pin: GPIO_PIN_14}, // LED3
-  {idx: EBOARD_GPIO_LEDG, GPIOx: GPIOB, GPIO_Pin: GPIO_PIN_0}, // LED1
-  {idx: EBOARD_GPIO_LEDB, GPIOx: GPIOB, GPIO_Pin: GPIO_PIN_7}, // LED2
-  {idx: EBOARD_GPIO_SW, GPIOx: GPIOC, GPIO_Pin: GPIO_PIN_13}, // USER BTN
-};
+static driver_gpio_descriptor_t_ driver_gpios_[] = { {idx: EBOARD_GPIO_LEDR, GPIOx: GPIOB, GPIO_Pin: GPIO_PIN_14}, // LED3
+    {idx: EBOARD_GPIO_LEDG, GPIOx: GPIOB, GPIO_Pin: GPIO_PIN_0}, // LED1
+    {idx: EBOARD_GPIO_LEDB, GPIOx: GPIOB, GPIO_Pin: GPIO_PIN_7}, // LED2
+    {idx: EBOARD_GPIO_SW, GPIOx: GPIOC, GPIO_Pin: GPIO_PIN_13}, // USER BTN
+    };
 
 /********************** external data definition *****************************/
 
@@ -81,54 +80,52 @@ void eboard_osal_port_delay(uint32_t time_ms)
   vTaskDelay((TickType_t)((time_ms) / portTICK_PERIOD_MS));
 }
 
-void euart_hal_receive(void* phardware_handle, uint8_t* pbuffer, size_t size)
+void euart_hal_receive(void *phardware_handle, uint8_t *pbuffer, size_t size)
 {
   HAL_UARTEx_ReceiveToIdle_IT((UART_HandleTypeDef*)phardware_handle, pbuffer, size);
 }
 
-void euart_hal_send(void* phardware_handle, uint8_t* pbuffer, size_t size)
+void euart_hal_send(void *phardware_handle, uint8_t *pbuffer, size_t size)
 {
   HAL_UART_Transmit_IT((UART_HandleTypeDef*)phardware_handle, pbuffer, size);
 }
 
-void HAL_UART_ErrorCallback(UART_HandleTypeDef* huart)
+void HAL_UART_ErrorCallback(UART_HandleTypeDef *huart)
 {
   eboard_hal_port_uart_error((void*)huart);
   // TODO: ¿?
 }
 
-void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef* huart, uint16_t size)
+void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t size)
 {
   eboard_hal_port_uart_rx_irq((void*)huart, size);
-//  euart_rx_irq(pheuart_, (void*)huart, size);
 }
 
-void HAL_UART_TxCpltCallback(UART_HandleTypeDef* huart)
+void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart)
 {
   eboard_hal_port_uart_tx_irq((void*)huart);
-//  euart_tx_irq(pheuart_, (void*)huart);
 }
 
-void eboard_hal_port_gpio_write(void* handle, bool value)
+void eboard_hal_port_gpio_write(void *handle, bool value)
 {
-	driver_gpio_descriptor_t_* hgpio = (driver_gpio_descriptor_t_*)handle;
-	HAL_GPIO_WritePin(hgpio->GPIOx, hgpio->GPIO_Pin, value ? GPIO_PIN_SET : GPIO_PIN_RESET);
+  driver_gpio_descriptor_t_ *hgpio = (driver_gpio_descriptor_t_*)handle;
+  HAL_GPIO_WritePin(hgpio->GPIOx, hgpio->GPIO_Pin, value ? GPIO_PIN_SET : GPIO_PIN_RESET);
 }
 
-bool eboard_hal_port_gpio_read(void* handle)
+bool eboard_hal_port_gpio_read(void *handle)
 {
-	driver_gpio_descriptor_t_* hgpio = (driver_gpio_descriptor_t_*)handle;
-	GPIO_PinState state = HAL_GPIO_ReadPin(hgpio->GPIOx, hgpio->GPIO_Pin);
-	return (GPIO_PIN_SET == state);
+  driver_gpio_descriptor_t_ *hgpio = (driver_gpio_descriptor_t_*)handle;
+  GPIO_PinState state = HAL_GPIO_ReadPin(hgpio->GPIOx, hgpio->GPIO_Pin);
+  return (GPIO_PIN_SET == state);
 }
 
 void driver_init(void)
 {
   eboard_uart_init((void*)&huart3);
 
-  for(eboard_gpio_idx_t idx = 0; idx < EBOARD_GPIO__CNT; ++idx)
+  for (eboard_gpio_idx_t idx = 0; idx < EBOARD_GPIO__CNT; ++idx)
   {
-	  eboard_gpio_init(idx, (void*)(driver_gpios_ + idx));
+    eboard_gpio_init(idx, (void*)(driver_gpios_ + idx));
   }
 }
 
