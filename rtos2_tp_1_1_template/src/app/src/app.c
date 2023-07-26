@@ -46,9 +46,13 @@
 #include "test.h"
 #include "test_mock.h"
 
+#include "ao_led.h"
+#include "task_button.h"
+
 /********************** macros and definitions *******************************/
 
 /********************** internal data declaration ****************************/
+ao_led_t ao_led;
 
 /********************** internal functions declaration ***********************/
 
@@ -62,29 +66,40 @@
 
 void app_init(void)
 {
-  // drivers
-  {
-    driver_init();
-    ELOG("drivers init");
-  }
+	// drivers
+	{
+		driver_init();
+		ELOG("drivers init");
+	}
 
-  // test
-  {
-    test_init();
-    ELOG("test init");
-  }
+	// test
+	{
+		test_init();
+		ELOG("test init");
+	}
 
-  // OA
-  {
-    ELOG("ao init");
-  }
+	// OA
+	{
+		ao_led_init(&ao_led);
+		ELOG("ao init");
+	}
 
-  // tasks
-  {
-    ELOG("tasks init");
-  }
+	// tasks
+	{
+		button_descriptor_t btn_descriptor;
+		btn_descriptor.ao_led = &ao_led;
+		btn_descriptor.button = BUTTON_RED;
 
-  ELOG("app init");
+		BaseType_t status;
+		status = xTaskCreate(task_button, "task_button", 128, (void *)&btn_descriptor, tskIDLE_PRIORITY, NULL);
+		while (pdPASS != status)
+		{
+		  // error
+		}
+		ELOG("tasks init");
+	}
+
+	ELOG("app init");
 }
 
 /********************** end of file ******************************************/
