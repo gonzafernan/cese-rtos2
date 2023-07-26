@@ -29,7 +29,6 @@ static void ao_led_task(void* pv_parameters)
 	{
 		if (pdPASS == xQueueReceive(hao->hqueue, &event, portMAX_DELAY))
 		{
-			ELOG("ao_led command:%d", event.command);
 			led_command_send(event.command);
 		}
 	}
@@ -56,8 +55,8 @@ void ao_led_init(ao_led_t* hao)
 	BaseType_t status;
 	status = xTaskCreate(ao_led_task, "task_ao_led", 128, (void*)hao, tskIDLE_PRIORITY, NULL);
 
-	while (status == pdPASS)
+	while (status != pdPASS)
 	{
-		// error handler
+		 // error handler
 	}
 }

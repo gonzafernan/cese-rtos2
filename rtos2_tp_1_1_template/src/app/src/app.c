@@ -53,6 +53,8 @@
 
 /********************** internal data declaration ****************************/
 ao_led_t ao_led;
+button_descriptor_t btn_descriptor[BUTTON__CNT];
+const char* task_button_name[BUTTON__CNT] = {"tasK_button_red", "task_button_green", "task_button_blue"};
 
 /********************** internal functions declaration ***********************/
 
@@ -86,15 +88,16 @@ void app_init(void)
 
 	// tasks
 	{
-		button_descriptor_t btn_descriptor;
-		btn_descriptor.ao_led = &ao_led;
-		btn_descriptor.button = BUTTON_RED;
+		for (button_t i = 0; i < BUTTON__CNT; i++) {
+			btn_descriptor[i].ao_led = &ao_led;
+			btn_descriptor[i].button = i;
 
-		BaseType_t status;
-		status = xTaskCreate(task_button, "task_button", 128, (void *)&btn_descriptor, tskIDLE_PRIORITY, NULL);
-		while (pdPASS != status)
-		{
-		  // error
+			BaseType_t status = pdPASS;
+			status = xTaskCreate(task_button, task_button_name[i], 128, (void *)&btn_descriptor[i], tskIDLE_PRIORITY, NULL);
+			while (pdPASS != status)
+			{
+				// error
+			}
 		}
 		ELOG("tasks init");
 	}
