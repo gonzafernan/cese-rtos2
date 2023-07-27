@@ -20,6 +20,7 @@ typedef struct
 } ao_access_t;
 
 
+void ao_tunnel_init(void);
 void ao_access_init(ao_access_t* hao, access_t access_id);
 bool ao_access_car_detect(ao_access_t* hao);
 

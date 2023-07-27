@@ -81,6 +81,7 @@ void app_init(void)
 
 	// OA
 	{
+		ao_tunnel_init();
 		for (access_t i = 0; i < ACCESS__CNT; i++)
 		{
 			ao_access_init(&ao_access_arr[i], i);
