@@ -42,13 +42,18 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+#include "ao_access.h"
 #include "driver.h"
+#include "task_sensor.h"
 #include "test.h"
 #include "test_mock.h"
 
 /********************** macros and definitions *******************************/
 
 /********************** internal data declaration ****************************/
+const char* task_sensor_name[ACCESS__CNT] = {"task_sensor_east", "task_sensor_west"};
+
+ao_access_t ao_access_arr[ACCESS__CNT];
 
 /********************** internal functions declaration ***********************/
 
@@ -62,29 +67,43 @@
 
 void app_init(void)
 {
-  // drivers
-  {
-    driver_init();
-    ELOG("drivers init");
-  }
+	// drivers
+	{
+		driver_init();
+		ELOG("drivers init");
+	}
 
-  // test
-  {
-    test_init();
-    ELOG("test init");
-  }
+	// test
+	{
+		test_init();
+		ELOG("test init");
+	}
 
-  // OA
-  {
-    ELOG("ao init");
-  }
+	// OA
+	{
+		for (access_t i = 0; i < ACCESS__CNT; i++)
+		{
+			ao_access_init(&ao_access_arr[i], i);
+		}
+		ELOG("ao init");
+	}
 
-  // tasks
-  {
-    ELOG("tasks init");
-  }
+	// tasks
+	{
+		BaseType_t status;
 
-  ELOG("app init");
+		for (access_t i = 0; i < ACCESS__CNT; i++)
+		{
+			status = xTaskCreate(task_sensor, task_sensor_name[i], 128, (void*)&ao_access_arr[i], tskIDLE_PRIORITY, NULL);
+			while (pdPASS != status)
+			{
+				// error
+			}
+		}
+		ELOG("tasks init");
+	}
+
+	ELOG("app init");
 }
 
 /********************** end of file ******************************************/

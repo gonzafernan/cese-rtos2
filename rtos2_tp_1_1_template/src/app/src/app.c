@@ -88,11 +88,13 @@ void app_init(void)
 
 	// tasks
 	{
-		for (button_t i = 0; i < BUTTON__CNT; i++) {
+		BaseType_t status;
+
+		for (button_t i = 0; i < BUTTON__CNT; i++)
+		{
 			btn_descriptor[i].ao_led = &ao_led;
 			btn_descriptor[i].button = i;
 
-			BaseType_t status = pdPASS;
 			status = xTaskCreate(task_button, task_button_name[i], 128, (void *)&btn_descriptor[i], tskIDLE_PRIORITY, NULL);
 			while (pdPASS != status)
 			{
