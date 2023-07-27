@@ -4,14 +4,12 @@
  */
 
 #include "ao_access.h"
+#include "ao_tunnel_sync.h"
 #include "driver.h"
 
 
 #define ACCESS_OPEN_TIME_MS		800
 #define TUNNEL_TRAVEL_TIME_MS	1800
-
-
-SemaphoreHandle_t tunnel_mutex;
 
 
 static void ao_access_task(void* pv_parameters)
@@ -23,7 +21,7 @@ static void ao_access_task(void* pv_parameters)
 		if (pdPASS == xSemaphoreTake(hao->hsemaph, portMAX_DELAY))
 		{
 			// Take tunnel resource
-			if (pdPASS == xSemaphoreTake(tunnel_mutex, portMAX_DELAY))
+			if (pdPASS == xSemaphoreTake(hao->tunnel_mutex, portMAX_DELAY))
 			{
 				access_open(hao->access_id);
 				vTaskDelay((TickType_t)(ACCESS_OPEN_TIME_MS / portTICK_PERIOD_MS));
@@ -31,32 +29,23 @@ static void ao_access_task(void* pv_parameters)
 			}
 			// Car travel through tunnel (> 2sec)
 			vTaskDelay((TickType_t)(TUNNEL_TRAVEL_TIME_MS / portTICK_PERIOD_MS));
-			xSemaphoreGive(tunnel_mutex);
+			xSemaphoreGive(hao->tunnel_mutex);
 		}
 
 	}
 }
 
 
-bool ao_access_car_detect(ao_access_t* hao)
+bool ao_access_car_release(ao_access_t* hao)
 {
 	return (xSemaphoreGive(hao->hsemaph) == pdPASS);
 }
 
 
-void ao_tunnel_init(void)
-{
-	tunnel_mutex = xSemaphoreCreateMutex();
-	while (tunnel_mutex == NULL)
-	{
-		// error handler
-	}
-}
-
-
-void ao_access_init(ao_access_t* hao, access_t access_id)
+void ao_access_init(ao_access_t* hao, access_t access_id, SemaphoreHandle_t tunnel_mutex)
 {
 	hao->access_id = access_id;
+	hao->tunnel_mutex = tunnel_mutex;
 	hao->hsemaph = xSemaphoreCreateBinary();
 
 	while (hao->hsemaph == NULL)

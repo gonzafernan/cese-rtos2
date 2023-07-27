@@ -43,6 +43,7 @@
 #include <stdbool.h>
 
 #include "ao_access.h"
+#include "ao_tunnel_sync.h"
 #include "driver.h"
 #include "task_sensor.h"
 #include "test.h"
@@ -53,7 +54,9 @@
 /********************** internal data declaration ****************************/
 const char* task_sensor_name[ACCESS__CNT] = {"task_sensor_east", "task_sensor_west"};
 
-ao_access_t ao_access_arr[ACCESS__CNT];
+static ao_tunnel_sync_t ao_tunnel_sync;
+static ao_access_t ao_access_arr[ACCESS__CNT];
+static sensor_param_t sensor_param_arr[ACCESS__CNT];
 
 /********************** internal functions declaration ***********************/
 
@@ -81,10 +84,10 @@ void app_init(void)
 
 	// OA
 	{
-		ao_tunnel_init();
+		ao_tunnel_sync_init(&ao_tunnel_sync, ao_access_arr, ACCESS__CNT);
 		for (access_t i = 0; i < ACCESS__CNT; i++)
 		{
-			ao_access_init(&ao_access_arr[i], i);
+			ao_access_init(&ao_access_arr[i], i, ao_tunnel_sync.tunnel_mutex);
 		}
 		ELOG("ao init");
 	}
@@ -95,7 +98,9 @@ void app_init(void)
 
 		for (access_t i = 0; i < ACCESS__CNT; i++)
 		{
-			status = xTaskCreate(task_sensor, task_sensor_name[i], 128, (void*)&ao_access_arr[i], tskIDLE_PRIORITY, NULL);
+			sensor_param_arr[i].acces_id = i;
+			sensor_param_arr[i].tunnel_sync = &ao_tunnel_sync;
+			status = xTaskCreate(task_sensor, task_sensor_name[i], 128, (void*)&sensor_param_arr[i], tskIDLE_PRIORITY, NULL);
 			while (pdPASS != status)
 			{
 				// error
